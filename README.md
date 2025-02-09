@@ -24,13 +24,13 @@ Sigue estos pasos para clonar e instalar la aplicación en tu máquina local:
    Abre tu terminal y ejecuta el siguiente comando para clonar el repositorio en tu máquina local:
 
    ```bash
-   git clone https://github.com/tu-usuario/gestor-citas-veterinarias.git
+ git clone https://github.com/tu-usuario/control-de-rutas.git
 
 2. **Navega al directorio del Proyecto**:
    
    Cambia el directorio del proyecto recién clonado:
    
-  cd gestor-citas-veterinarias
+  cd control-de-rutas
 
 3. **Instala las dependencias**:
    
