@@ -1,8 +1,18 @@
-
 import { useNavigate } from "react-router-dom";
+import Formulario from "../components/Formulario";
+import Tabla from "../components/Tabla";
+import Graficos from "../components/Graficos";
+import ExportarImportar from "../components/ExportarImportar";
+import { useEffect, useState } from "react";
+
 
 const Home = () => {
   const navigate = useNavigate();
+  const [data, setData] = useState(JSON.parse(localStorage.getItem("rutas")) || []);
+
+  useEffect(() => {
+    localStorage.setItem("rutas", JSON.stringify(data));
+  }, [data]);
 
   const handleLogout = () => {
     localStorage.removeItem("username");
@@ -11,14 +21,25 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold">Bienvenido a la página principal</h1>
-      <button
-        className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-        onClick={handleLogout}
-      >
-        Cerrar sesión
-      </button>
+    <div className="container">
+      <aside className="sidebar">
+        <Formulario onSubmit={(entry) => setData([...data, { id: Date.now(), ...entry }])} />
+      </aside>
+      <main className="content">
+        {/* Solo el componente ExportarImportar debajo de la tabla */}
+        <div className="tabla-container">
+          <Tabla data={data} eliminarFila={(id) => setData(data.filter((item) => item.id !== id))} />
+          <ExportarImportar data={data} setData={setData} />
+        </div>
+
+        {/* Componente de gráficos */}
+        <Graficos data={data} />
+
+        {/* Botón para cerrar sesión */}
+        <button className="logout-button" onClick={handleLogout}>
+          Cerrar sesión
+        </button>
+      </main>
     </div>
   );
 };
