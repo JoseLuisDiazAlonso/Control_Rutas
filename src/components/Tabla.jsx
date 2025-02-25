@@ -129,25 +129,7 @@ const Tabla = ({ data, eliminarFila }) => {
     };
 
     return (
-        <div className="tabla-container">
-            {/* Filtro de Cliente */}
-            <div className="filtro-cliente">
-                <label htmlFor="cliente">Seleccionar Cliente:</label>
-                <select
-                    id="cliente"
-                    className="select-filtro"
-                    onChange={(e) => handleFiltroChange(e, "clientes")}
-                    value={filtros.clientes}
-                >
-                    <option value="">Todos los Clientes</option>
-                    {[...new Set(data.map(item => item.clientes))].map((cliente, index) => (
-                        <option key={index} value={cliente}>
-                            {cliente}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
+        <div className="tabla-container">    
             <table className="tabla">
                 <thead>
                     <tr>
