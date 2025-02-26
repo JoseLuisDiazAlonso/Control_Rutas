@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Legend } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-const Tabla = ({ data, eliminarFila }) => {
+const Tabla = ({ dataProp }) => {
+    const [data, setData] = useState(dataProp || []);
     const [filtros, setFiltros] = useState({
         fecha: "",
         ruta: "",
@@ -14,9 +15,25 @@ const Tabla = ({ data, eliminarFila }) => {
         horaEntrada: "",
         horaSalida: ""
     });
-
     const [promedio, setPromedio] = useState(null);
     const [mostrarPromedio, setMostrarPromedio] = useState(false);
+
+    useEffect(() => {
+        if (!dataProp) {
+            // Solo obtener los datos si no se pasaron como props
+            fetchData();
+        }
+    }, [dataProp]);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/datos');
+            const result = await response.json();
+            setData(result);  // Actualizamos el estado con los datos recibidos
+        } catch (error) {
+            console.error("Error al obtener los datos:", error);
+        }
+    };
 
     const meses = [
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -128,8 +145,24 @@ const Tabla = ({ data, eliminarFila }) => {
         });
     };
 
+    // Función para eliminar una fila en la base de datos
+    const eliminarFila = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/datos/${id}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                setData(data.filter(item => item.id !== id));  // Filtrar la fila eliminada del estado
+            } else {
+                console.error("Error al eliminar la fila");
+            }
+        } catch (error) {
+            console.error("Error en la petición de eliminación:", error);
+        }
+    };
+
     return (
-        <div className="tabla-container">    
+        <div className="tabla-container">
             <table className="tabla">
                 <thead>
                     <tr>
@@ -231,11 +264,7 @@ const Tabla = ({ data, eliminarFila }) => {
                             <Legend />
                             {Object.keys(dataForChart[0]).map((key, index) => key !== 'mes' && (
                                 <Bar key={index} dataKey={key} name={key} fill={asignarColorCliente(key, index)}>
-                                    <LabelList
-                                        dataKey={key}
-                                        position="top"
-                                        fill="#000"
-                                    />
+                                    <LabelList dataKey={key} position="top" fill="#000" />
                                 </Bar>
                             ))}
                         </BarChart>
@@ -250,21 +279,24 @@ const Tabla = ({ data, eliminarFila }) => {
     );
 };
 
-// ✅ PropTypes añadidos
+// Validación de PropTypes
 Tabla.propTypes = {
-    data: PropTypes.arrayOf(
+    dataProp: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+            id: PropTypes.number.isRequired,
             fecha: PropTypes.string.isRequired,
             ruta: PropTypes.string.isRequired,
             conductor: PropTypes.string.isRequired,
             matricula: PropTypes.string.isRequired,
             clientes: PropTypes.string.isRequired,
             horaEntrada: PropTypes.string.isRequired,
-            horaSalida: PropTypes.string.isRequired
+            horaSalida: PropTypes.string.isRequired,
         })
-    ).isRequired,
-    eliminarFila: PropTypes.func.isRequired
+    ),
+};
+
+Tabla.defaultProps = {
+    dataProp: [],
 };
 
 export default Tabla;
