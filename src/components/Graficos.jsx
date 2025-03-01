@@ -1,15 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import { jsPDF } from "jspdf";
 import PropTypes from "prop-types";
+import axios from "axios";
 
 // Registrar los componentes de Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const Graficos = ({ data }) => {
-    // Estado para el filtro de mes
+const Graficos = () => {
+    const [data, setData] = useState([]);
     const [filtroMes, setFiltroMes] = useState("");
+
+    useEffect(() => {
+        // Obtener los datos desde el servidor al cargar el componente
+        const obtenerDatos = async () => {
+            try {
+                const response = await axios.get('http://195.35.48.41/api/datos');
+                setData(response.data); // Actualizar el estado con los datos obtenidos
+            } catch (error) {
+                console.error("Error al obtener los datos:", error);
+            }
+        };
+
+        obtenerDatos();
+    }, []); // Solo se ejecuta una vez al montar el componente
 
     // Función para calcular el tiempo promedio por cliente
     const calcularTiempoPromedioPorCliente = () => {
@@ -110,7 +125,7 @@ const Graficos = ({ data }) => {
 
             {/* Gráfico de Clientes más Rentables */}
             <div className="grafico">
-                <h3>Clientes más Rentables</h3>
+                <h3>Clientes</h3>
                 <Bar
                     id="cliente-graph"
                     data={{
@@ -145,7 +160,7 @@ const Graficos = ({ data }) => {
 
             {/* Gráfico de Conductores más Rentables */}
             <div className="grafico">
-                <h3>Conductores más Rentables</h3>
+                <h3>Conductores</h3>
                 <Bar
                     id="conductor-graph"
                     data={{
@@ -218,18 +233,7 @@ const Graficos = ({ data }) => {
 
 // PropTypes
 Graficos.propTypes = {
-    data: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-            fecha: PropTypes.string.isRequired,
-            ruta: PropTypes.string.isRequired,
-            conductor: PropTypes.string.isRequired,
-            matricula: PropTypes.string.isRequired,
-            clientes: PropTypes.string.isRequired,
-            horaEntrada: PropTypes.string.isRequired,
-            horaSalida: PropTypes.string.isRequired
-        })
-    ).isRequired
+    data: PropTypes.array.isRequired,
 };
 
 export default Graficos;

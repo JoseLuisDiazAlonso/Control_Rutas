@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 const ExportarImportar = ({ data, setData }) => {
     const exportarExcell = () => {
@@ -18,12 +19,20 @@ const ExportarImportar = ({ data, setData }) => {
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             const workbook = XLSX.read(e.target.result, { type: "binary" });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const importedData = XLSX.utils.sheet_to_json(sheet);
             setData(importedData);
             localStorage.setItem("rutas", JSON.stringify(importedData));
+
+            // Ahora enviamos los datos al servidor usando Axios
+            try {
+                const response = await axios.post("http://195.35.48.41/importar-datos", importedData);
+                console.log("Datos importados y guardados correctamente:", response.data);
+            } catch (error) {
+                console.error("Error al importar los datos:", error);
+            }
         };
         reader.readAsBinaryString(file);
     };

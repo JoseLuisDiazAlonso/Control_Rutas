@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Legend } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import axios from "axios";  // Importar Axios
 
 const Tabla = ({ dataProp }) => {
     const [data, setData] = useState(dataProp || []);
@@ -27,9 +28,8 @@ const Tabla = ({ dataProp }) => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/datos');
-            const result = await response.json();
-            setData(result);  // Actualizamos el estado con los datos recibidos
+            const response = await axios.get('http://localhost:5000/api/datos'); // Usamos axios para hacer la solicitud GET
+            setData(response.data);  // Actualizamos el estado con los datos recibidos
         } catch (error) {
             console.error("Error al obtener los datos:", error);
         }
@@ -148,10 +148,8 @@ const Tabla = ({ dataProp }) => {
     // Función para eliminar una fila en la base de datos
     const eliminarFila = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/datos/${id}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
+            const response = await axios.delete(`http://localhost:5000/api/datos/${id}`); // Usamos axios para la solicitud DELETE
+            if (response.status === 200) {
                 setData(data.filter(item => item.id !== id));  // Filtrar la fila eliminada del estado
             } else {
                 console.error("Error al eliminar la fila");

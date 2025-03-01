@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import axios from 'axios';
 
 const Formulario = ({ onSubmit }) => {
     const { register, handleSubmit, reset } = useForm();
@@ -10,35 +11,29 @@ const Formulario = ({ onSubmit }) => {
 
     const handleFormSubmit = async (data) => {
         try {
-            // Enviar los datos al servidor usando fetch
-            const response = await fetch('http://localhost:5000/api/datos', {
-                method: 'POST',
+            // Enviar los datos al servidor usando Axios en lugar de fetch
+            const response = await axios.post('http://195.35.48.41/api/datos', data, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
             });
 
-            if (!response.ok) {
-                throw new Error('Error al guardar los datos');
-            }
-
-            const result = await response.json();  // Obtener la respuesta en formato JSON
-
-            setSuccess(true);  // Si la respuesta es exitosa
+            // Si la respuesta es exitosa, establecemos éxito
+            setSuccess(true);
             setError(null);  // Limpiar cualquier error anterior
 
-            // Aquí usamos result.insertId para obtener el ID insertado
-            setInsertedId(result.id);  // Almacenar el ID insertado en el estado
+            // Usamos result.insertId para obtener el ID insertado
+            setInsertedId(response.data.id);  // Almacenar el ID insertado en el estado
 
-            // Llamar a la función onSubmit si es necesario
+            // Llamamos a la función onSubmit si es necesario
             onSubmit(data);
 
             reset();  // Limpiar el formulario
 
         } catch (err) {
-            setError(err.message);  // Capturar y mostrar el error
-            setSuccess(false);  // Si ocurre un error, establecer éxito en false
+            // Si hay un error, lo capturamos
+            setError(err.response ? err.response.data.message : 'Error al guardar los datos');
+            setSuccess(false);  // Si ocurre un error, establecemos éxito en false
             setInsertedId(null);  // Limpiar el ID insertado
         }
     };
