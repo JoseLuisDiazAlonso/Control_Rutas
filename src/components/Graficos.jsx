@@ -16,7 +16,7 @@ const Graficos = () => {
         // Obtener los datos desde el servidor al cargar el componente
         const obtenerDatos = async () => {
             try {
-                const response = await axios.get('http://195.35.48.41/api/datos');
+                const response = await axios.get('http://195.35.48.41/api/datos'); // Asegúrate de que esta URL sea correcta y apunte al endpoint correcto
                 setData(response.data); // Actualizar el estado con los datos obtenidos
             } catch (error) {
                 console.error("Error al obtener los datos:", error);

@@ -6,14 +6,23 @@ import ExportarImportar from "../components/ExportarImportar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-
 const Home = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState(JSON.parse(localStorage.getItem("rutas")) || []);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("rutas", JSON.stringify(data));
-  }, [data]);
+    // Obtener los datos de la base de datos al cargar la página
+    const obtenerDatos = async () => {
+      try {
+        const response = await axios.get("http://195.35.48.41/api/datos");
+        setData(response.data); // Actualizamos el estado con los datos obtenidos de MongoDB
+      } catch (error) {
+        console.error("Error al obtener los datos:", error);
+      }
+    };
+
+    obtenerDatos();
+  }, []); // Este useEffect se ejecutará solo una vez al cargar la página
 
   const handleLogout = () => {
     localStorage.removeItem("username");
@@ -21,15 +30,15 @@ const Home = () => {
     navigate("/");
   };
 
-  // Función para guardar los datos en la base de datos
+  // Función para guardar los datos en MongoDB
   const guardarDatosEnBaseDeDatos = async (entry) => {
     try {
-      // Aquí hacemos la solicitud POST al servidor para guardar los datos
-      const response = await axios.post("http://195.35.48.41/guardar-datos", entry);
+      // Realizar la solicitud POST para guardar los datos en MongoDB
+      const response = await axios.post("http://195.35.48.41/api/guardar-datos", entry);
       
       // Si la respuesta es exitosa, puedes agregar el nuevo dato al estado
       console.log("Datos guardados correctamente:", response.data);
-      setData([...data, { id: Date.now(), ...entry }]); // Aquí añadimos el dato al estado
+      setData([...data, response.data]); // Aquí añadimos el nuevo dato al estado con los datos devueltos por el servidor
     } catch (error) {
       console.error("Error al guardar los datos:", error);
     }

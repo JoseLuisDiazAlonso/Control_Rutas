@@ -28,7 +28,7 @@ const Tabla = ({ dataProp }) => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/datos'); // Usamos axios para hacer la solicitud GET
+            const response = await axios.get('http://localhost:5000/api/registros'); // Cambia la URL según tu ruta de API
             setData(response.data);  // Actualizamos el estado con los datos recibidos
         } catch (error) {
             console.error("Error al obtener los datos:", error);
@@ -148,9 +148,9 @@ const Tabla = ({ dataProp }) => {
     // Función para eliminar una fila en la base de datos
     const eliminarFila = async (id) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/datos/${id}`); // Usamos axios para la solicitud DELETE
+            const response = await axios.delete(`http://localhost:5000/api/registros/${id}`); // Usamos axios para la solicitud DELETE
             if (response.status === 200) {
-                setData(data.filter(item => item.id !== id));  // Filtrar la fila eliminada del estado
+                setData(data.filter(item => item._id !== id));  // Filtrar la fila eliminada del estado
             } else {
                 console.error("Error al eliminar la fila");
             }
@@ -196,7 +196,7 @@ const Tabla = ({ dataProp }) => {
                 </thead>
                 <tbody>
                     {datosFiltrados.map((item, index) => (
-                        <tr key={item.id} className={index % 2 === 0 ? "fila-par" : "fila-impar"}>
+                        <tr key={item._id} className={index % 2 === 0 ? "fila-par" : "fila-impar"}> {/* Usamos _id de MongoDB */}
                             <td>{item.fecha}</td>
                             <td>{item.ruta}</td>
                             <td>{item.conductor}</td>
@@ -206,7 +206,7 @@ const Tabla = ({ dataProp }) => {
                             <td>{item.horaSalida}</td>
                             <td>{calcularDiferenciaTiempo(item.horaEntrada, item.horaSalida)} min</td>
                             <td>
-                                <button className="boton-eliminar" onClick={() => eliminarFila(item.id)}>Eliminar</button>
+                                <button className="boton-eliminar" onClick={() => eliminarFila(item._id)}>Eliminar</button> {/* Usamos _id de MongoDB */}
                             </td>
                         </tr>
                     ))}
@@ -281,7 +281,7 @@ const Tabla = ({ dataProp }) => {
 Tabla.propTypes = {
     dataProp: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.number.isRequired,
+            _id: PropTypes.string.isRequired, // MongoDB usa _id
             fecha: PropTypes.string.isRequired,
             ruta: PropTypes.string.isRequired,
             conductor: PropTypes.string.isRequired,
